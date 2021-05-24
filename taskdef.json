@@ -1,0 +1,53 @@
+{
+  "executionRoleArn": "arn:aws:iam::<AWS_ACCOUNT_ID>:role/Nudge/NudgeECSTaskExecutionRole",
+  "containerDefinitions": [
+    {
+      "cpu": <CONTAINER_APP_CPU>,
+      "memoryReservation": <CONTAINER_APP_MEMORY>,
+      "image": "<ECR_REPOS_DOMAIN>/<ECR_REPOS_NAME>:<IMAGE_TAG>",
+      "essential": true,
+      "name": "<ECS_CONTAINER_NAME>",
+      "portMappings": [
+        {
+          "hostPort": 80,
+          "protocol": "tcp",
+          "containerPort": 80
+        }
+      ],
+      "secrets": [
+        {
+          "valueFrom": "arn:aws:ssm:<AWS_REGION>:<AWS_ACCOUNT_ID>:parameter/nudge-ssm-param-active-env",
+          "name": "ACTIVE_ENV"
+        },
+        {
+          "valueFrom": "arn:aws:ssm:<AWS_REGION>:<AWS_ACCOUNT_ID>:parameter/nudge-ssm-param-app-id-<SERVICE_ID>",
+          "name": "APP_ID"
+        },
+        {
+          "valueFrom": "arn:aws:ssm:<AWS_REGION>:<AWS_ACCOUNT_ID>:parameter/nudge-ssm-param-online-maintenance-bff-web",
+          "name": "ONLINE_MAINTENANCE"
+        },
+        {
+          "valueFrom": "arn:aws:secretsmanager:<AWS_REGION>:<AWS_ACCOUNT_ID>:secret:nudge-secretsmanager-newrelic-yMEgyW:license_key::",
+          "name": "NEWRELIC_LICENSE_KEY"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/aws/ecs/<LOG_GROUP_NAME>",
+          "awslogs-region": "<AWS_REGION>",
+          "awslogs-stream-prefix": "ecs"
+        }
+      }
+    }
+  ],
+  "family": "<ECS_TASK_NAME>",
+  "cpu": "<ECS_TASK_CPU>",
+  "memory": "<ECS_TASK_MEMORY>",
+  "taskRoleArn": "arn:aws:iam::<AWS_ACCOUNT_ID>:role/Nudge/NudgeECSTaskBFFWebRole",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": [
+    "FARGATE"
+  ]
+}
